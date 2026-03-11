@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCI & Design Research Briefing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f6;
+      color: #2d3748;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: #fff;
+      border-radius: 12px;
+      margin: 24px auto;
+      max-width: 1080px;
+      padding: 32px 40px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .site-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a365d;
+      letter-spacing: -.5px;
+    }
+    .site-header .subtitle {
+      color: #718096;
+      margin-top: 6px;
+      font-size: .95rem;
+    }
+    .site-header .meta {
+      margin-top: 14px;
+      font-size: .875rem;
+      color: #4a5568;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .site-header .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* ── Controls ── */
+    .controls-wrap {
+      background: #fff;
+      border-radius: 12px;
+      margin: 0 auto 18px;
+      max-width: 1080px;
+      padding: 20px 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px; }
+    .filter-group label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .filter-group select,
+    .filter-group input[type="text"] {
+      padding: 9px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .9rem;
+      color: #2d3748;
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+    .filter-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .filter-group select:focus,
+    .filter-group input[type="text"]:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.15); }
+
+    .checkbox-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .88rem;
+      color: #4a5568;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-label input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #4299e1; }
+
+    /* ── Results bar ── */
+    .results-bar {
+      max-width: 1080px;
+      margin: 0 auto 12px;
+      padding: 10px 4px;
+      font-size: .875rem;
+      color: #718096;
+      text-align: center;
+    }
+
+    /* ── Loading / Error ── */
+    .status-msg {
+      max-width: 1080px;
+      margin: 20px auto;
+      padding: 28px;
+      background: #fff;
+      border-radius: 12px;
+      text-align: center;
+      color: #718096;
+      font-size: .95rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #4299e1;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-list {
+      list-style: none;
+      margin-top: 16px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+    .progress-list li { font-size: .85rem; display: flex; align-items: center; gap: 8px; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .75rem; font-weight: 600; color: #fff; }
+
+    /* ── Time group ── */
+    .time-group { max-width: 1080px; margin: 0 auto 6px; }
+    .time-group-label {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #2b6cb0;
+      padding: 18px 4px 8px;
+    }
+
+    /* ── Article card ── */
+    .article-card {
+      background: #fff;
+      border-radius: 10px;
+      margin: 0 auto 10px;
+      max-width: 1080px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      border-left: 4px solid transparent;
+      transition: box-shadow .15s;
+    }
+    .article-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,.1); }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a202c;
+      line-height: 1.45;
+      flex: 1;
+    }
+    .card-title a { color: inherit; text-decoration: none; }
+    .card-title a:hover { color: #2b6cb0; text-decoration: underline; }
+
+    .oa-icon {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      line-height: 1;
+      margin-top: 2px;
+      cursor: default;
+    }
+
+    .card-meta {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .journal-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .card-authors { font-size: .82rem; color: #718096; font-style: italic; }
+    .card-date    { font-size: .82rem; color: #718096; margin-left: auto; }
+
+    .topic-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .topic-tag {
+      padding: 3px 9px;
+      border: 1px solid #bee3f8;
+      background: #ebf8ff;
+      color: #2b6cb0;
+      border-radius: 20px;
+      font-size: .75rem;
+    }
+
+    .abstract-wrap { margin-top: 10px; }
+    .abstract-text {
+      font-size: .875rem;
+      color: #4a5568;
+      line-height: 1.55;
+    }
+    .abstract-text.truncated {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .abstract-none { font-size: .875rem; color: #a0aec0; font-style: italic; }
+
+    .card-footer {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #2b6cb0;
+      font-size: .82rem;
+      cursor: pointer;
+      padding: 0;
+      font-weight: 500;
+    }
+    .toggle-btn:hover { text-decoration: underline; }
+    .read-link {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #2b6cb0;
+      text-decoration: none;
+    }
+    .read-link:hover { text-decoration: underline; }
+
+    /* ── Journal colors ── */
+    .j-jux   { background: #38a169; } .card-jux   { border-left-color: #38a169; }
+    .j-tochi { background: #3182ce; } .card-tochi { border-left-color: #3182ce; }
+    .j-ijhcs { background: #805ad5; } .card-ijhcs { border-left-color: #805ad5; }
+    .j-hci   { background: #e53e3e; } .card-hci   { border-left-color: #e53e3e; }
+    .j-ijd   { background: #dd6b20; } .card-ijd   { border-left-color: #dd6b20; }
+    .j-ds    { background: #0987a0; } .card-ds    { border-left-color: #0987a0; }
+
+    /* ── Footer ── */
+    .site-footer {
+      max-width: 1080px;
+      margin: 32px auto 48px;
+      text-align: center;
+      font-size: .8rem;
+      color: #a0aec0;
+      line-height: 1.7;
+    }
+    .site-footer a { color: #718096; }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: .8rem;
+      color: #718096;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .refresh-btn:hover { background: #f7fafc; }
+
+    @media (max-width: 640px) {
+      .site-header { margin: 12px; padding: 20px; }
+      .site-header h1 { font-size: 1.4rem; }
+      .controls-wrap { margin: 0 12px 14px; padding: 16px; }
+      .article-card { margin: 0 12px 10px; }
+      .time-group  { margin: 0 12px 6px; }
+      .filter-group { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>HCI &amp; Design Research Briefing</h1>
+  <p class="subtitle">Your 90-day snapshot of what's new across the field</p>
+  <div class="meta">
+    <span>📄 <strong id="article-count">—</strong> articles</span>
+    <span>🕐 Updated: <span id="updated-date">—</span></span>
+  </div>
+</header>
+
+<div class="controls-wrap">
+  <div class="filter-row">
+    <div class="filter-group">
+      <label for="filter-journal">Filter by Journal</label>
+      <select id="filter-journal">
+        <option value="">All Journals</option>
+        <option value="jux">Journal of User Experience (JUX)</option>
+        <option value="tochi">ACM TOCHI</option>
+        <option value="ijhcs">IJHCS</option>
+        <option value="hci">Human–Computer Interaction</option>
+        <option value="ijd">International Journal of Design</option>
+        <option value="ds">Design Studies</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filter-topic">Filter by Topic</label>
+      <select id="filter-topic">
+        <option value="">All Topics</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="sort-by">Sort by</label>
+      <select id="sort-by">
+        <option value="date-desc">Date (Newest First)</option>
+        <option value="date-asc">Date (Oldest First)</option>
+        <option value="journal">Journal</option>
+      </select>
+    </div>
+  </div>
+  <div class="filter-row">
+    <div class="filter-group" style="flex:2">
+      <label for="search-input">Search</label>
+      <input type="text" id="search-input" placeholder="Search titles and abstracts…" autocomplete="off">
+    </div>
+    <div class="filter-group" style="justify-content:flex-end">
+      <div style="height:23px"></div>
+      <div class="checkbox-row">
+        <label class="checkbox-label"><input type="checkbox" id="open-access-only"> Open Access Only</label>
+        <label class="checkbox-label"><input type="checkbox" id="expand-abstracts"> Expand Abstracts</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="results-bar" id="results-bar">Loading…</div>
+<div id="article-list"></div>
+
+<footer class="site-footer">
+  <div>Data via <a href="https://openalex.org" target="_blank">OpenAlex</a> &nbsp;·&nbsp; Journals: JUX · TOCHI · IJHCS · HCI · IJDesign · Design Studies &nbsp;·&nbsp; 90-day window</div>
+  <div>Last fetched: <span id="footer-time">—</span></div>
+  <div><button class="refresh-btn" id="refresh-btn">↻ Refresh now</button></div>
+</footer>
+
+<script>
+'use strict';
+
+/* ─────────────── Journal config ─────────────── */
+const JOURNALS = [
+  { id:'jux',   name:'Journal of User Experience',                        short:'JUX',          issn:'1938-7857', cssClass:'j-jux',   cardClass:'card-jux'   },
+  { id:'tochi', name:'ACM Transactions on Computer-Human Interaction',    short:'TOCHI',        issn:'1557-7325', cssClass:'j-tochi', cardClass:'card-tochi' },
+  { id:'ijhcs', name:'International Journal of Human-Computer Studies',   short:'IJHCS',        issn:'1095-9300', cssClass:'j-ijhcs', cardClass:'card-ijhcs' },
+  { id:'hci',   name:'Human–Computer Interaction',                        short:'HCI',          issn:'1532-7051', cssClass:'j-hci',   cardClass:'card-hci'   },
+  { id:'ijd',   name:'International Journal of Design',                   short:'IJDesign',     issn:'1991-3761', cssClass:'j-ijd',   cardClass:'card-ijd'   },
+  { id:'ds',    name:'Design Studies',                                    short:'Design Studies',issn:'1872-6909', cssClass:'j-ds',    cardClass:'card-ds'    },
+];
+
+const JOURNAL_MAP = Object.fromEntries(JOURNALS.map(j => [j.id, j]));
+
+/* ─────────────── OpenAlex ─────────────── */
+const OA_BASE = 'https://api.openalex.org/works';
+const POLITE  = 'hci-design-feed@example.com';   // polite pool
+
+function iso90DaysAgo() {
+  const d = new Date();
+  d.setDate(d.getDate() - 90);
+  return d.toISOString().slice(0, 10);
+}
+
+async function fetchJournal(journal, cutoff) {
+  const params = new URLSearchParams({
+    filter: `primary_location.source.issn:${journal.issn},from_publication_date:${cutoff}`,
+    sort: 'publication_date:desc',
+    'per-page': '100',
+    select: 'id,title,publication_date,primary_location,authorships,abstract_inverted_index,open_access,topics,concepts',
+    mailto: POLITE,
+  });
+
+  const res = await fetch(`${OA_BASE}?${params}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+
+  return (data.results || []).map(w => parseWork(w, journal));
+}
+
+function reconstructAbstract(inv) {
+  if (!inv || typeof inv !== 'object') return '';
+  try {
+    const maxPos = Math.max(...Object.values(inv).flat());
+    const words = new Array(maxPos + 1).fill('');
+    for (const [word, positions] of Object.entries(inv)) {
+      for (const pos of positions) words[pos] = word;
+    }
+    return words.join(' ').trim();
+  } catch { return ''; }
+}
+
+function parseWork(w, journal) {
+  const loc = w.primary_location || {};
+  const link = loc.landing_page_url || loc.pdf_url || w.id || '#';
+  const oa = w.open_access || {};
+
+  // Authors: up to 5 then "et al."
+  const authors = (w.authorships || [])
+    .map(a => a.author?.display_name || '')
+    .filter(Boolean);
+  const authorsDisplay = authors.length > 5
+    ? authors.slice(0, 5).join(', ') + ' et al.'
+    : authors.join(', ');
+
+  const abstract = reconstructAbstract(w.abstract_inverted_index);
+
+  // Topics from OpenAlex topics array (first 4 relevant ones)
+  const oaTopics = (w.topics || [])
+    .slice(0, 4)
+    .map(t => t.display_name)
+    .filter(Boolean);
+
+  const date = w.publication_date ? new Date(w.publication_date) : null;
+
+  return {
+    id: w.id || Math.random().toString(36),
+    title: (w.title || 'Untitled').trim(),
+    link,
+    abstract,
+    authorsDisplay,
+    date,
+    journalId: journal.id,
+    journalName: journal.name,
+    journalShort: journal.short,
+    journalCss: journal.cssClass,
+    journalCard: journal.cardClass,
+    isOpenAccess: !!oa.is_oa,
+    oaUrl: oa.oa_url || null,
+    topics: oaTopics,
+  };
+}
+
+/* ─────────────── Cache (23-hour TTL) ─────────────── */
+const CACHE_KEY = 'hci_feed_oa_v2';
+const CACHE_TTL = 23 * 60 * 60 * 1000;
+
+function loadCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { ts, articles } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) return null;
+    articles.forEach(a => { if (a.date) a.date = new Date(a.date); });
+    return articles;
+  } catch { return null; }
+}
+
+function saveCache(articles) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), articles }));
+  } catch {}
+}
+
+/* ─────────────── Load ─────────────── */
+let allArticles = [];
+
+async function loadFeeds(forceRefresh = false) {
+  if (!forceRefresh) {
+    const cached = loadCache();
+    if (cached) {
+      allArticles = cached;
+      buildTopicDropdown(allArticles);
+      renderAll();
+      return;
+    }
+  }
+
+  showLoading();
+  const cutoff = iso90DaysAgo();
+  const results = await Promise.allSettled(JOURNALS.map(j => fetchJournal(j, cutoff)));
+
+  // Update progress indicators
+  results.forEach((r, i) => {
+    const el = document.getElementById('prog-' + JOURNALS[i].id);
+    if (el) el.textContent = r.status === 'fulfilled' ? `✓ ${r.value.length} articles` : '✗ Failed';
+  });
+
+  allArticles = results
+    .filter(r => r.status === 'fulfilled')
+    .flatMap(r => r.value)
+    .sort((a, b) => (b.date || 0) - (a.date || 0));
+
+  saveCache(allArticles);
+  buildTopicDropdown(allArticles);
+  renderAll();
+
+  document.getElementById('footer-time').textContent = new Date().toLocaleString();
+}
+
+/* ─────────────── Topic dropdown ─────────────── */
+function buildTopicDropdown(articles) {
+  const counts = {};
+  for (const a of articles) {
+    for (const t of a.topics) {
+      counts[t] = (counts[t] || 0) + 1;
+    }
+  }
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const sel = document.getElementById('filter-topic');
+  // keep first option
+  while (sel.options.length > 1) sel.remove(1);
+  for (const [name, count] of sorted) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = `${name} (${count})`;
+    sel.appendChild(opt);
+  }
+}
+
+/* ─────────────── Render ─────────────── */
+let expandAll = false;
+
+function renderAll() {
+  const journalFilter  = document.getElementById('filter-journal').value;
+  const topicFilter    = document.getElementById('filter-topic').value;
+  const sortBy         = document.getElementById('sort-by').value;
+  const searchVal      = document.getElementById('search-input').value.trim().toLowerCase();
+  const oaOnly         = document.getElementById('open-access-only').checked;
+  expandAll            = document.getElementById('expand-abstracts').checked;
+
+  document.getElementById('updated-date').textContent = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+  let filtered = allArticles.filter(a => {
+    if (journalFilter && a.journalId !== journalFilter) return false;
+    if (topicFilter  && !a.topics.includes(topicFilter))  return false;
+    if (oaOnly       && !a.isOpenAccess)                   return false;
+    if (searchVal) {
+      const hay = (a.title + ' ' + a.abstract + ' ' + a.authorsDisplay).toLowerCase();
+      if (!hay.includes(searchVal)) return false;
+    }
+    return true;
+  });
+
+  if (sortBy === 'date-asc')  filtered.sort((a,b) => (a.date||0)-(b.date||0));
+  else if (sortBy === 'journal') filtered.sort((a,b) => a.journalId.localeCompare(b.journalId) || (b.date||0)-(a.date||0));
+  else                           filtered.sort((a,b) => (b.date||0)-(a.date||0));
+
+  document.getElementById('article-count').textContent = allArticles.length.toLocaleString();
+  document.getElementById('results-bar').textContent = filtered.length === allArticles.length
+    ? `Showing ${filtered.length.toLocaleString()} articles`
+    : `Showing ${filtered.length.toLocaleString()} of ${allArticles.length.toLocaleString()} articles`;
+
+  const groups = groupByTime(filtered, sortBy);
+  const list = document.getElementById('article-list');
+  list.innerHTML = '';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="status-msg">No articles match your filters.</div>';
+    return;
+  }
+
+  for (const [label, items] of groups) {
+    if (!items.length) continue;
+    const gWrap = document.createElement('div');
+    gWrap.className = 'time-group';
+    const gLabel = document.createElement('div');
+    gLabel.className = 'time-group-label';
+    gLabel.textContent = label;
+    gWrap.appendChild(gLabel);
+    list.appendChild(gWrap);
+    for (const a of items) list.appendChild(buildCard(a));
+  }
+}
+
+function groupByTime(articles, sortBy) {
+  if (sortBy === 'journal') {
+    const groups = new Map(JOURNALS.map(j => [j.name, []]));
+    for (const a of articles) {
+      if (groups.has(a.journalName)) groups.get(a.journalName).push(a);
+    }
+    return [...groups.entries()].filter(([,v]) => v.length > 0);
+  }
+
+  const now = new Date();
+  const sow = new Date(now); sow.setHours(0,0,0,0); sow.setDate(now.getDate() - now.getDay());
+  const slow = new Date(sow); slow.setDate(sow.getDate() - 7);
+  const som  = new Date(now.getFullYear(), now.getMonth(), 1);
+  const solm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const B = new Map([['THIS WEEK',[]],['LAST WEEK',[]],['THIS MONTH',[]],['LAST MONTH',[]],['OLDER',[]]]);
+  for (const a of articles) {
+    const d = a.date;
+    if (!d)        { B.get('OLDER').push(a); continue; }
+    if (d >= sow)  B.get('THIS WEEK').push(a);
+    else if (d >= slow) B.get('LAST WEEK').push(a);
+    else if (d >= som)  B.get('THIS MONTH').push(a);
+    else if (d >= solm) B.get('LAST MONTH').push(a);
+    else                B.get('OLDER').push(a);
+  }
+  return B;
+}
+
+function buildCard(a) {
+  const card = document.createElement('div');
+  card.className = `article-card ${a.journalCard}`;
+
+  const hasAbstract = a.abstract && a.abstract.length > 20;
+  const dateStr = a.date
+    ? a.date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+    : '';
+
+  const safeId = encodeId(a.id);
+
+  const oaHref = a.isOpenAccess && a.oaUrl ? a.oaUrl : a.link;
+
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-title">
+        <a href="${esc(oaHref)}" target="_blank" rel="noopener">${esc(a.title)}</a>
+      </div>
+      <span class="oa-icon" title="${a.isOpenAccess ? 'Open Access' : 'Subscription required'}">${a.isOpenAccess ? '🔓' : '🔒'}</span>
+    </div>
+    <div class="card-meta">
+      <span class="journal-badge ${a.journalCss}">${esc(a.journalShort)}</span>
+      ${a.authorsDisplay ? `<span class="card-authors">${esc(a.authorsDisplay)}</span>` : ''}
+      ${dateStr ? `<span class="card-date">${dateStr}</span>` : ''}
+    </div>
+    ${a.topics.length ? `<div class="topic-tags">${a.topics.map(t=>`<span class="topic-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+    <div class="abstract-wrap">
+      ${hasAbstract
+        ? `<div class="abstract-text ${expandAll ? '' : 'truncated'}" id="abs-${safeId}">${esc(a.abstract)}</div>`
+        : `<span class="abstract-none">Abstract not available</span>`}
+    </div>
+    <div class="card-footer">
+      ${hasAbstract && !expandAll ? `<button class="toggle-btn" onclick="toggleAbs('${safeId}',this)">Show more</button>` : ''}
+      <a class="read-link" href="${esc(a.link)}" target="_blank" rel="noopener">Read full article →</a>
+    </div>`;
+  return card;
+}
+
+function toggleAbs(safeId, btn) {
+  const el = document.getElementById('abs-' + safeId);
+  if (!el) return;
+  const trunc = el.classList.toggle('truncated');
+  btn.textContent = trunc ? 'Show more' : 'Show less';
+}
+
+/* ─────────────── Loading screen ─────────────── */
+function showLoading() {
+  const items = JOURNALS.map(j =>
+    `<li><span class="pill ${j.cssClass}">${j.short}</span> <span id="prog-${j.id}">fetching…</span></li>`
+  ).join('');
+  document.getElementById('article-list').innerHTML = `
+    <div class="status-msg">
+      <div class="spinner"></div>
+      <div>Fetching latest articles from OpenAlex…</div>
+      <ul class="progress-list">${items}</ul>
+    </div>`;
+  document.getElementById('results-bar').textContent = 'Loading…';
+}
+
+/* ─────────────── Utilities ─────────────── */
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function encodeId(s) { return String(s).replace(/[^a-zA-Z0-9]/g,'_').slice(0,60); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; }
+
+/* ─────────────── Event listeners ─────────────── */
+['filter-journal','filter-topic','sort-by'].forEach(id =>
+  document.getElementById(id).addEventListener('change', renderAll)
+);
+document.getElementById('search-input').addEventListener('input', debounce(renderAll, 200));
+document.getElementById('open-access-only').addEventListener('change', renderAll);
+
+document.getElementById('expand-abstracts').addEventListener('change', () => {
+  expandAll = document.getElementById('expand-abstracts').checked;
+  document.querySelectorAll('.abstract-text').forEach(el => {
+    el.classList.toggle('truncated', !expandAll);
+  });
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    if (expandAll) { btn.style.display = 'none'; }
+    else { btn.style.display = ''; btn.textContent = 'Show more'; }
+  });
+});
+
+document.getElementById('refresh-btn').addEventListener('click', () => loadFeeds(true));
+
+/* ─────────────── Boot ─────────────── */
+loadFeeds();
+</script>
+</body>
+</html>
